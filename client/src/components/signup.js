@@ -1,17 +1,17 @@
 import React, { useRef, useState } from "react";
 import { Form, Button, Card, Alert, Container, Row, Col } from "react-bootstrap";
-import { useAuth } from "../context/authContext"; // Adjust the import path as necessary
+import { useAuth } from "../context/authContext"; // Adjust the import path if needed
 import { Link, useNavigate } from "react-router-dom";
-import { FaUserPlus } from "react-icons/fa";
+import { FaUserPlus, FaGoogle } from "react-icons/fa";
 
 export default function Signup() {
   const emailRef = useRef();
   const passwordRef = useRef();
   const passwordConfirmRef = useRef();
-  const { signup } = useAuth();
+  const { signup, signInWithGoogle } = useAuth(); // ✅ Include Google Auth
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // ✅ useNavigate instead of useHistory
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -24,11 +24,23 @@ export default function Signup() {
       setError("");
       setLoading(true);
       await signup(emailRef.current.value, passwordRef.current.value);
-      navigate("/"); // ✅ updated from history.push
+      navigate("/");
     } catch {
       setError("❌ Failed to create an account. Try again!");
     }
 
+    setLoading(false);
+  }
+
+  async function handleGoogleSignIn() {
+    try {
+      setError("");
+      setLoading(true);
+      await signInWithGoogle();
+      navigate("/");
+    } catch {
+      setError("❌ Google sign-in failed. Try again!");
+    }
     setLoading(false);
   }
 
@@ -83,13 +95,27 @@ export default function Signup() {
 
                 <Button
                   disabled={loading}
-                  className="w-100 fw-semibold"
+                  className="w-100 fw-semibold mb-2"
                   type="submit"
                   variant="primary"
                 >
                   {loading ? "Creating..." : "Sign Up"}
                 </Button>
               </Form>
+
+              <div className="text-center">
+                <span className="text-muted">or</span>
+              </div>
+
+              <Button
+                variant="outline-danger"
+                className="w-100 fw-semibold mt-2"
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+              >
+                <FaGoogle className="me-2" />
+                Sign in with Google
+              </Button>
 
               <div className="w-100 text-center mt-3">
                 <small>

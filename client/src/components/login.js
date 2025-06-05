@@ -1,16 +1,16 @@
 import React, { useRef, useState } from "react";
 import { Form, Button, Card, Alert, Container, Row, Col } from "react-bootstrap";
-import { useAuth } from "../context/authContext"; // Adjust the import path as necessary
+import { useAuth } from "../context/authContext";
 import { Link, useNavigate } from "react-router-dom";
-import { FaSignInAlt } from "react-icons/fa";
+import { FaSignInAlt, FaGoogle } from "react-icons/fa";
 
 export default function Login() {
   const emailRef = useRef();
   const passwordRef = useRef();
-  const { login } = useAuth();
+  const { login, signInWithGoogle } = useAuth(); // ✅ Include Google login
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const Navigate = useNavigate();
+  const navigate = useNavigate(); // ✅ Corrected from Navigate.push
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -19,11 +19,23 @@ export default function Login() {
       setError("");
       setLoading(true);
       await login(emailRef.current.value, passwordRef.current.value);
-      Navigate.push("/");
+      navigate("/"); // ✅ navigate instead of push
     } catch {
       setError("❌ Failed to log in. Please check your credentials.");
     }
 
+    setLoading(false);
+  }
+
+  async function handleGoogleSignIn() {
+    try {
+      setError("");
+      setLoading(true);
+      await signInWithGoogle();
+      navigate("/");
+    } catch {
+      setError("❌ Google sign-in failed. Try again!");
+    }
     setLoading(false);
   }
 
@@ -68,13 +80,27 @@ export default function Login() {
 
                 <Button
                   disabled={loading}
-                  className="w-100 fw-semibold"
+                  className="w-100 fw-semibold mb-2"
                   type="submit"
                   variant="success"
                 >
                   {loading ? "Logging in..." : "Log In"}
                 </Button>
               </Form>
+
+              <div className="text-center">
+                <span className="text-muted">or</span>
+              </div>
+
+              <Button
+                variant="outline-danger"
+                className="w-100 fw-semibold mt-2"
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+              >
+                <FaGoogle className="me-2" />
+                Sign in with Google
+              </Button>
 
               <div className="w-100 text-center mt-3">
                 <small>

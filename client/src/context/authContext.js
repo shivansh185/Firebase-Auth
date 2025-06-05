@@ -1,12 +1,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { 
-  createUserWithEmailAndPassword, 
+import {
+  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
   updateEmail as firebaseUpdateEmail,
   updatePassword as firebaseUpdatePassword,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
 } from "firebase/auth";
 
 import { auth } from "../firebase";
@@ -21,6 +23,7 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState();
   const [loading, setLoading] = useState(true);
 
+  // ✅ Email/Password Auth Functions
   function signup(email, password) {
     return createUserWithEmailAndPassword(auth, email, password);
   }
@@ -45,6 +48,13 @@ export function AuthProvider({ children }) {
     return firebaseUpdatePassword(currentUser, password);
   }
 
+  // ✅ Google Sign-In
+  function signInWithGoogle() {
+    const provider = new GoogleAuthProvider();
+    return signInWithPopup(auth, provider);
+  }
+
+  // ✅ Track auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
@@ -62,6 +72,7 @@ export function AuthProvider({ children }) {
     resetPassword,
     updateEmail,
     updatePassword,
+    signInWithGoogle, // ✅ expose Google login
   };
 
   return (
